@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surat Izin Tidak Masuk Sekolah</title>
+<style>
+  :root{
+    --ink:#1C2B4A;
+    --ink-soft:#3D4F72;
+    --paper:#F3EFE4;
+    --paper-card:#FBF9F3;
+    --stamp-red:#8B3232;
+    --rule:#D8D0BC;
+    --muted:#78705F;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:var(--ink);
+  }
+  header{
+    border-bottom:1px solid var(--rule);
+    background:var(--paper-card);
+    padding:16px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  header h1{
+    margin:0;
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:18px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:2px 0 0;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .btn-print{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--ink);
+    color:#fff;
+    border:none;
+    padding:10px 18px;
+    border-radius:6px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .btn-print:hover{opacity:0.9;}
+  .layout{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:24px;
+    padding:24px;
+    max-width:1100px;
+    margin:0 auto;
+  }
+  @media(min-width:1024px){
+    .layout{grid-template-columns:1fr 1fr;}
+  }
+  .form-card{
+    background:var(--paper-card);
+    border:1px solid var(--rule);
+    border-radius:10px;
+    padding:24px;
+  }
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .field input[type=text],
+  .field input[type=date],
+  .field select,
+  .field textarea{
+    width:100%;
+    border:1px solid var(--rule);
+    border-radius:6px;
+    padding:9px 12px;
+    font-size:14px;
+    color:var(--ink);
+    background:#fff;
+    font-family:inherit;
+  }
+  .field textarea{resize:none;}
+  .field input:focus,.field select:focus,.field textarea:focus{
+    outline:2px solid var(--ink-soft);
+    outline-offset:1px;
+  }
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .jenis-group{display:flex;gap:8px;}
+  .jenis-btn{
+    flex:1;
+    padding:9px 6px;
+    font-size:13px;
+    font-weight:600;
+    border-radius:6px;
+    border:1px solid var(--rule);
+    background:#fff;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .jenis-btn.active{
+    background:var(--ink);
+    color:#fff;
+    border-color:var(--ink);
+  }
+  .upload-zone{
+    border:2px dashed var(--rule);
+    border-radius:8px;
+    padding:24px;
+    text-align:center;
+    font-size:14px;
+    color:var(--muted);
+    cursor:pointer;
+  }
+  .upload-zone:hover{opacity:0.8;}
+  .upload-choice{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .upload-opt{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    border:2px dashed var(--rule);
+    border-radius:8px;
+    padding:18px 10px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink-soft);
+    background:#fff;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .upload-opt:hover{
+    background:var(--paper);
+    border-color:var(--ink-soft);
+  }
+  .upload-preview{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    border:1px solid var(--rule);
+    border-radius:6px;
+    padding:8px;
+    background:#fff;
+  }
+  .upload-preview img{
+    width:56px;height:56px;object-fit:cover;border-radius:4px;
+  }
+  .upload-preview .info{flex:1;min-width:0;}
+  .upload-preview .info p{margin:0;font-size:12px;}
+  .upload-preview .fname{font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .upload-preview .fstatus{color:var(--muted);}
+  .upload-preview button{
+    border:none;background:none;color:var(--stamp-red);cursor:pointer;padding:6px;
+  }
+  .status-bar{
+    display:flex;align-items:center;gap:8px;
+    font-size:12px;
+    padding:8px 12px;
+    border-radius:6px;
+    margin-top:4px;
+    background:#F5EDE4;
+    color:var(--muted);
+  }
+  .status-bar.ok{background:#EAF2ED;color:#2F6B4F;}
+
+  /* PREVIEW */
+  .preview-wrap{position:relative;}
+  .letter{
+    background:#fff;
+    border-radius:8px;
+    box-shadow:0 8px 24px rgba(28,43,74,0.12);
+    padding:40px;
+    font-family:Georgia,'Times New Roman',serif;
+    color:var(--ink);
+    position:relative;
+  }
+  .clip-area{
+    position:absolute;
+    top:-16px;right:32px;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    transform:rotate(6deg);
+  }
+  .clip-area.show{display:flex;}
+  .clip-area svg{transform:rotate(15deg);filter:drop-shadow(0 2px 2px rgba(0,0,0,0.2));}
+  .clip-area img{
+    width:80px;height:96px;object-fit:cover;
+    border:3px solid #fff;
+    box-shadow:0 2px 6px rgba(0,0,0,0.25);
+    margin-top:-6px;
+    background:#fff;
+  }
+  .no-surat{
+    text-align:right;font-size:11px;color:var(--muted);
+    font-family:'Courier New',monospace;margin-bottom:24px;
+  }
+  .letter h2{
+    text-align:center;font-size:19px;text-transform:uppercase;
+    letter-spacing:0.03em;margin:0 0 6px;
+  }
+  .divider{width:96px;height:2px;background:var(--ink);margin:0 auto 32px;}
+  .letter p{font-size:14px;line-height:1.9;text-align:justify;margin:8px 0;}
+  .data-table{font-size:14px;margin:12px 0 12px 16px;border-collapse:collapse;}
+  .data-table td{padding:2px 0;vertical-align:top;}
+  .data-table td.label{color:var(--muted);padding-right:10px;}
+  .data-table td.colon{padding-right:8px;}
+  .data-table td.val{font-weight:600;}
+  .signature{display:flex;justify-content:flex-end;margin-top:36px;}
+  .signature .box{text-align:center;font-size:14px;}
+  .signature .hormat{color:var(--muted);margin:4px 0 0;}
+  .signature .gap{height:64px;}
+  .signature .nama{
+    font-weight:600;border-top:1px solid var(--rule);
+    padding-top:4px;margin:0;
+  }
+  .tear-line{
+    display:flex;align-items:center;margin:40px 0;
+    color:var(--muted);font-size:11px;
+    text-transform:uppercase;letter-spacing:0.15em;
+  }
+  .tear-line .line{flex:1;border-top:1px dashed #B8AF98;}
+  .tear-line span{margin:0 12px;}
+  .stub{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;color:var(--muted);
+  }
+  .stub .title{
+    font-weight:700;text-transform:uppercase;letter-spacing:0.06em;
+    color:var(--ink);margin:0 0 6px;
+  }
+  .stub p{margin:2px 0;}
+  .stub .recv{text-align:center;}
+  .stub .recv p:first-child{margin-bottom:32px;}
+  .stub .recv .sign{border-top:1px solid var(--rule);padding-top:4px;margin:0;}
+
+  @media print{
+    header,.form-card{display:none !important;}
+    body{background:#fff !important;}
+    .layout{padding:0;max-width:100%;grid-template-columns:1fr;}
+    .letter{box-shadow:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Surat Izin Tidak Masuk Sekolah</h1>
+    <p>Isi formulir, lampirkan foto bukti, lalu cetak atau simpan sebagai PDF</p>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <button class="btn-print" id="btnWA" style="background:#25D366;" onclick="kirimWhatsapp()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 6.32A7.85 7.85 0 0 0 12.03 4a7.94 7.94 0 0 0-6.87 11.87L4 20l4.24-1.11a7.9 7.9 0 0 0 3.79.96h.01a7.94 7.94 0 0 0 5.56-13.53zm-5.57 12.2h-.01a6.6 6.6 0 0 1-3.36-.92l-.24-.14-2.5.66.67-2.44-.16-.25a6.6 6.6 0 1 1 12.24-3.5 6.55 6.55 0 0 1-6.64 6.59zm3.6-4.93c-.2-.1-1.17-.58-1.35-.64-.18-.07-.31-.1-.44.1-.13.19-.5.64-.62.78-.11.13-.23.15-.42.05a5.4 5.4 0 0 1-1.6-.98 5.99 5.99 0 0 1-1.1-1.37c-.12-.2 0-.3.09-.4.09-.09.2-.23.3-.35.1-.11.13-.19.2-.32.06-.13.03-.24-.02-.34-.05-.1-.44-1.06-.6-1.45-.16-.38-.32-.33-.44-.33h-.38c-.13 0-.34.05-.52.24-.18.19-.68.66-.68 1.62 0 .95.7 1.87.79 2 .1.13 1.37 2.1 3.33 2.94.47.2.83.32 1.11.41.47.15.9.13 1.24.08.38-.06 1.17-.48 1.33-.94.17-.46.17-.86.12-.94-.05-.09-.18-.14-.38-.24z"/></svg>
+      Kirim ke WhatsApp
+    </button>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+      Cetak / Simpan PDF
+    </button>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- FORM -->
+  <div class="form-card">
+    <div class="row2">
+      <div class="field">
+        <label>Nama Siswa</label>
+        <input type="text" id="namaSiswa" placeholder="Nama lengkap siswa">
+      </div>
+      <div class="field">
+        <label>Kelas</label>
+        <input type="text" id="kelas" placeholder="cth. IX-A">
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>NIS / NISN (opsional)</label>
+        <input type="text" id="nis" placeholder="Nomor induk siswa">
+      </div>
+      <div class="field">
+        <label>Ditujukan Kepada</label>
+        <select id="tujuan">
+          <option>Wali Kelas</option>
+          <option>Kepala Sekolah</option>
+          <option>Dewan Guru</option>
+          <option>Guru Piket</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Jenis Izin</label>
+      <div class="jenis-group" id="jenisGroup">
+        <button type="button" class="jenis-btn active" data-jenis="sakit">Sakit</button>
+        <button type="button" class="jenis-btn" data-jenis="izin">Izin Keperluan</button>
+        <button type="button" class="jenis-btn" data-jenis="lainnya">Lainnya</button>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Tidak Masuk Mulai Tanggal</label>
+        <input type="date" id="tglMulai">
+      </div>
+      <div class="field">
+        <label>Sampai Tanggal (jika &gt; 1 hari)</label>
+        <input type="date" id="tglSelesai">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Keterangan Tambahan (opsional)</label>
+      <textarea id="keterangan" rows="3" placeholder="cth. Demam sejak semalam, sudah diperiksa dokter"></textarea>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Nama Orang Tua / Wali</label>
+        <input type="text" id="namaWali" placeholder="Nama pembuat surat">
+      </div>
+      <div class="field">
+        <label>Kota Surat Dibuat</label>
+        <input type="text" id="tempatSurat" placeholder="cth. Bandung">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Tanggal Surat Dibuat</label>
+      <input type="date" id="tglSurat">
+    </div>
+
+    <div class="field">
+      <label>Lampiran Foto Bukti (surat dokter / kondisi / lainnya)</label>
+      <input type="file" id="fotoInput" accept="image/*" style="display:none">
+      <input type="file" id="fotoKameraInput" accept="image/*" capture="environment" style="display:none">
+      <div id="uploadZone" class="upload-choice">
+        <button type="button" class="upload-opt" onclick="document.getElementById('fotoKameraInput').click()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          <span>Ambil Foto</span>
+        </button>
+        <button type="button" class="upload-opt" onclick="document.getElementById('fotoInput').click()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          <span>Unggah dari Galeri</span>
+        </button>
+      </div>
+      <div id="uploadPreview" class="upload-preview" style="display:none;">
+        <img id="previewImg" src="" alt="Lampiran">
+        <div class="info">
+          <p class="fname" id="previewName"></p>
+          <p class="fstatus">Terlampir</p>
+        </div>
+        <button onclick="hapusFoto()" aria-label="Hapus foto">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="status-bar" id="statusBar">Lengkapi nama, kelas, tanggal, dan nama wali</div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-wrap">
+    <div class="letter">
+      <div class="clip-area" id="clipArea">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8A8578" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+        <img id="clipImg" src="" alt="Lampiran bukti">
+      </div>
+
+      <div class="no-surat" id="noSurat">No: -</div>
+
+      <h2>Surat Izin Tidak Masuk Sekolah</h2>
+      <div class="divider"></div>
+
+      <p>Kepada Yth.</p>
+      <p style="font-weight:600;margin-top:-6px;margin-bottom:20px;" id="pTujuan">Wali Kelas</p>
+
+      <p>Dengan hormat, saya yang bertanda tangan di bawah ini selaku orang tua/wali dari:</p>
+
+      <table class="data-table">
+        <tr><td class="label">Nama</td><td class="colon">:</td><td class="val" id="tNama">____________________</td></tr>
+        <tr><td class="label">Kelas</td><td class="colon">:</td><td id="tKelas">________</td></tr>
+        <tr id="rowNis" style="display:none;"><td class="label">NIS/NISN</td><td class="colon">:</td><td id="tNis"></td></tr>
+      </table>
+
+      <p id="pAlasan">memberitahukan bahwa anak kami tidak dapat mengikuti kegiatan belajar di sekolah pada <span style="font-weight:600;">____________</span> dikarenakan sedang sakit.</p>
+
+      <p>Sebagai bukti pendukung, bersama ini kami lampirkan foto sebagaimana terlampir pada sudut surat ini. Demikian surat izin ini kami buat dengan sebenar-benarnya. Atas perhatian dan izin yang diberikan, kami ucapkan terima kasih.</p>
+
+      <div class="signature">
+        <div class="box">
+          <p id="pTempatTgl">..................., ____________</p>
+          <p class="hormat">Hormat kami,</p>
+          <div class="gap"></div>
+          <p class="nama" id="pNamaWali">( Nama Orang Tua/Wali )</p>
+        </div>
+      </div>
+
+      <div class="tear-line"><div class="line"></div><span>gunting di sini</span><div class="line"></div></div>
+
+      <div class="stub">
+        <div>
+          <p class="title">Bukti Terima Sekolah</p>
+          <p id="sNoSurat">No: -</p>
+          <p id="sSiswaKelas">Siswa: - | Kelas: -</p>
+          <p id="sTglIzin">Tanggal izin: -</p>
+          <p id="sFoto">Lampiran foto: tidak ada</p>
+        </div>
+        <div class="recv">
+          <p>Diterima oleh,</p>
+          <p class="sign">( .......................... )</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+let state = {
+  namaSiswa:"", kelas:"", nis:"", tujuan:"Wali Kelas", jenis:"sakit",
+  tglMulai:"", tglSelesai:"", keterangan:"", namaWali:"", tempatSurat:"",
+  tglSurat:"", foto:null, fotoName:""
+};
+
+function formatPanjang(iso){
+  if(!iso) return "____________";
+  const d = new Date(iso+"T00:00:00");
+  if(isNaN(d)) return "____________";
+  return d.getDate()+" "+bulan[d.getMonth()]+" "+d.getFullYear();
+}
+function formatSingkat(iso){
+  if(!iso) return "-";
+  const d = new Date(iso+"T00:00:00");
+  if(isNaN(d)) return "-";
+  return String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+d.getFullYear();
+}
+function ambilNomorUrutHarian(){
+  const today = new Date();
+  const todayKey = today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+  const STORAGE_KEY = "suratIzinCounter";
+
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const data = raw ? JSON.parse(raw) : null;
+    let urut;
+    if(data && data.tanggal === todayKey){
+      urut = data.urut + 1;
+    } else {
+      urut = 1;
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ tanggal: todayKey, urut }));
+    return urut;
+  }catch(err){
+    // localStorage tidak tersedia (mis. pratinjau di dalam sandbox) -> pakai nomor urut sesi ini saja
+    if(!window.__suratUrutSesi) window.__suratUrutSesi = 1;
+    return window.__suratUrutSesi;
+  }
+}
+
+const NOMOR_URUT_HARI_INI = ambilNomorUrutHarian();
+
+function nomorSurat(iso){
+  const d = iso ? new Date(iso+"T00:00:00") : new Date();
+  const rom = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"];
+  const seq = String(NOMOR_URUT_HARI_INI).padStart(3,"0");
+  return seq+"/IZIN-SISWA/"+rom[d.getMonth()]+"/"+d.getFullYear();
+}
+function alasanTeks(jenis){
+  if(jenis==="sakit") return "sedang sakit";
+  if(jenis==="izin") return "ada keperluan keluarga yang tidak dapat ditinggalkan";
+  return "berhalangan hadir";
+}
+
+function render(){
+  const noSurat = nomorSurat(state.tglSurat);
+  document.getElementById("noSurat").textContent = "No: "+noSurat;
+  document.getElementById("sNoSurat").textContent = "No: "+noSurat;
+
+  document.getElementById("pTujuan").textContent = state.tujuan + " SMP-IT Majma'ul Bahrain";
+  document.getElementById("tNama").textContent = state.namaSiswa || "____________________";
+  document.getElementById("tKelas").textContent = state.kelas || "________";
+
+  if(state.nis){
+    document.getElementById("rowNis").style.display = "";
+    document.getElementById("tNis").textContent = state.nis;
+  } else {
+    document.getElementById("rowNis").style.display = "none";
+  }
+
+  let rentang;
+  if(!state.tglMulai && !state.tglSelesai){
+    rentang = "____________";
+  } else if(state.tglMulai && state.tglSelesai && state.tglMulai !== state.tglSelesai){
+    rentang = formatPanjang(state.tglMulai)+" s/d "+formatPanjang(state.tglSelesai);
+  } else {
+    rentang = formatPanjang(state.tglMulai || state.tglSelesai);
+  }
+
+  document.getElementById("pAlasan").innerHTML =
+    "memberitahukan bahwa anak kami tidak dapat mengikuti kegiatan belajar di sekolah pada " +
+    "<span style='font-weight:600;'>"+rentang+"</span> dikarenakan "+alasanTeks(state.jenis) +
+    (state.keterangan ? ". "+escapeHtml(state.keterangan) : ".");
+
+  document.getElementById("pTempatTgl").textContent =
+    (state.tempatSurat || "...................") + ", " + formatPanjang(state.tglSurat);
+  document.getElementById("pNamaWali").textContent =
+    state.namaWali || "( Nama Orang Tua/Wali )";
+
+  document.getElementById("sSiswaKelas").textContent =
+    "Siswa: "+(state.namaSiswa||"-")+" | Kelas: "+(state.kelas||"-");
+  const tglIzinStub = formatSingkat(state.tglMulai) +
+    ((state.tglSelesai && state.tglSelesai !== state.tglMulai) ? " s/d "+formatSingkat(state.tglSelesai) : "");
+  document.getElementById("sTglIzin").textContent = "Tanggal izin: "+tglIzinStub;
+  document.getElementById("sFoto").textContent = "Lampiran foto: "+(state.foto ? "ada" : "tidak ada");
+
+  const clipArea = document.getElementById("clipArea");
+  if(state.foto){
+    clipArea.classList.add("show");
+    document.getElementById("clipImg").src = state.foto;
+  } else {
+    clipArea.classList.remove("show");
+  }
+
+  const isLengkap = state.namaSiswa && state.kelas && (state.tglMulai || state.tglSelesai) && state.namaWali;
+  const statusBar = document.getElementById("statusBar");
+  if(isLengkap){
+    statusBar.textContent = "Data lengkap, surat siap dicetak";
+    statusBar.classList.add("ok");
+  } else {
+    statusBar.textContent = "Lengkapi nama, kelas, tanggal, dan nama wali";
+    statusBar.classList.remove("ok");
+  }
+}
+
+function escapeHtml(str){
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// bind inputs
+["namaSiswa","kelas","nis","tempatSurat","namaWali"].forEach(id=>{
+  document.getElementById(id).addEventListener("input", e=>{
+    state[id] = e.target.value;
+    render();
+  });
+});
+document.getElementById("tujuan").addEventListener("change", e=>{ state.tujuan = e.target.value; render(); });
+document.getElementById("tglMulai").addEventListener("change", e=>{ state.tglMulai = e.target.value; render(); });
+document.getElementById("tglSelesai").addEventListener("change", e=>{ state.tglSelesai = e.target.value; render(); });
+document.getElementById("tglSurat").addEventListener("change", e=>{ state.tglSurat = e.target.value; render(); });
+document.getElementById("keterangan").addEventListener("input", e=>{ state.keterangan = e.target.value; render(); });
+
+document.querySelectorAll(".jenis-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".jenis-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    state.jenis = btn.dataset.jenis;
+    render();
+  });
+});
+
+function prosesFoto(file){
+  if(!file || !file.type.startsWith("image/")) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    state.foto = reader.result;
+    state.fotoName = file.name || "foto-kamera.jpg";
+    document.getElementById("uploadZone").style.display = "none";
+    document.getElementById("uploadPreview").style.display = "flex";
+    document.getElementById("previewImg").src = state.foto;
+    document.getElementById("previewName").textContent = state.fotoName;
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById("fotoInput").addEventListener("change", e=>{
+  prosesFoto(e.target.files[0]);
+});
+document.getElementById("fotoKameraInput").addEventListener("change", e=>{
+  prosesFoto(e.target.files[0]);
+});
+
+function hapusFoto(){
+  state.foto = null;
+  state.fotoName = "";
+  document.getElementById("fotoInput").value = "";
+  document.getElementById("fotoKameraInput").value = "";
+  document.getElementById("uploadZone").style.display = "grid";
+  document.getElementById("uploadPreview").style.display = "none";
+  render();
+}
+
+function ringkasanTeks(){
+  const rentang = (state.tglMulai || state.tglSelesai)
+    ? formatSingkat(state.tglMulai) + ((state.tglSelesai && state.tglSelesai !== state.tglMulai) ? " s/d "+formatSingkat(state.tglSelesai) : "")
+    : "-";
+  let t = "*Surat Izin Tidak Masuk Sekolah*\\n";
+  t += "No: "+nomorSurat(state.tglSurat)+"\\n\\n";
+  t += "Nama: "+(state.namaSiswa||"-")+"\\n";
+  t += "Kelas: "+(state.kelas||"-")+"\\n";
+  if(state.nis) t += "NIS/NISN: "+state.nis+"\\n";
+  t += "Tanggal izin: "+rentang+"\\n";
+  t += "Jenis: "+(state.jenis==="sakit"?"Sakit":state.jenis==="izin"?"Izin Keperluan":"Lainnya")+"\\n";
+  if(state.keterangan) t += "Keterangan: "+state.keterangan+"\\n";
+  t += "Orang tua/wali: "+(state.namaWali||"-")+"\\n";
+  t += (state.foto ? "\\n(Foto lampiran bukti disertakan)" : "\\n(Tidak ada foto lampiran)");
+  return t;
+}
+
+async function dataURLtoFile(dataUrl, filename){
+  const res = await fetch(dataUrl);
+  const blob = await res.blob();
+  return new File([blob], filename, { type: blob.type });
+}
+
+async function buatPdfBlob(){
+  const original = document.querySelector('.letter');
+
+  // Render pada lebar tetap ala A4 (bukan lebar layar HP) agar hasil selalu rapi,
+  // sama seperti hasil "Cetak / Simpan PDF" via print.
+  const FIXED_WIDTH = 794; // ~210mm pada 96dpi
+
+  const clone = original.cloneNode(true);
+  clone.style.width = FIXED_WIDTH + "px";
+  clone.style.maxWidth = FIXED_WIDTH + "px";
+  clone.style.boxSizing = "border-box";
+  clone.style.margin = "0";
+
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'fixed';
+  wrapper.style.top = '0';
+  wrapper.style.left = '-99999px';
+  wrapper.style.width = FIXED_WIDTH + 'px';
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  // beri waktu browser melayout ulang & memuat gambar sebelum ditangkap
+  await new Promise(r => setTimeout(r, 100));
+
+  let canvas;
+  try{
+    canvas = await html2canvas(clone, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      width: FIXED_WIDTH,
+      windowWidth: FIXED_WIDTH
+    });
+  } finally {
+    document.body.removeChild(wrapper);
+  }
+
+  const imgData = canvas.toDataURL('image/jpeg', 0.95);
+  const { jsPDF } = window.jspdf;
+  const pdfWidth = 210; // mm, lebar A4
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  const pdf = new jsPDF({ unit: 'mm', format: [pdfWidth, pdfHeight] });
+  pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+  return pdf.output('blob');
+}
+
+function namaFilePdf(){
+  const nama = (state.namaSiswa || "siswa").trim().replace(/\s+/g, "-");
+  return "Surat-Izin-" + nama + ".pdf";
+}
+
+async function unduhPdf(){
+  const btn = document.getElementById('btnPdf');
+  const teksAsli = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = "Membuat PDF...";
+  try{
+    const blob = await buatPdfBlob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = namaFilePdf();
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }catch(err){
+    alert("Gagal membuat PDF: " + err.message);
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = teksAsli;
+  }
+}
+
+async function kirimWhatsapp(){
+  const btn = document.getElementById('btnWA');
+  const teksAsli = btn.innerHTML;
+  const teks = ringkasanTeks();
+
+  btn.disabled = true;
+  btn.innerHTML = "Membuat PDF...";
+
+  let pdfFile = null;
+  try{
+    const blob = await buatPdfBlob();
+    pdfFile = new File([blob], namaFilePdf(), { type: "application/pdf" });
+  }catch(err){
+    btn.disabled = false;
+    btn.innerHTML = teksAsli;
+    alert("Gagal membuat PDF: " + err.message);
+    return;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = teksAsli;
+
+  if(pdfFile && navigator.canShare && navigator.canShare({ files:[pdfFile] })){
+    try{
+      await navigator.share({
+        files:[pdfFile],
+        text: teks,
+        title: "Surat Izin Tidak Masuk Sekolah"
+      });
+      return;
+    }catch(err){
+      if(err && err.name === "AbortError") return;
+      // lanjut ke fallback di bawah jika gagal
+    }
+  }
+
+  // Fallback: perangkat/browser tidak mendukung share file PDF langsung.
+  // Unduh PDF-nya, lalu buka WhatsApp dengan teks siap kirim.
+  const url = URL.createObjectURL(pdfFile);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = pdfFile.name;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  const waUrl = "https://wa.me/?text=" + encodeURIComponent(teks);
+  window.open(waUrl, "_blank");
+  alert("PDF surat sudah terunduh (" + pdfFile.name + "). WhatsApp terbuka dengan teks ringkasan — silakan lampirkan file PDF tersebut secara manual di chat.");
+}
+
+render();
+</script>
+</body>
+</html>
