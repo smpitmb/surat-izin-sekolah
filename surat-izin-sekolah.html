@@ -439,6 +439,50 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, doc, runTransaction, collection, addDoc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBQE_vVMEgOw0gm0oCYQNwDm2436gdHh50",
+    authDomain: "surat-izin-sekolah.firebaseapp.com",
+    projectId: "surat-izin-sekolah",
+    storageBucket: "surat-izin-sekolah.firebasestorage.app",
+    messagingSenderId: "306263058433",
+    appId: "1:306263058433:web:521ca4afbd5b669143f800"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Ambil nomor urut harian secara terpusat & aman dari bentrok (pakai transaction)
+  window.ambilNomorUrutTerpusat = async function () {
+    const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const ref = doc(db, "counters", todayKey);
+    const urut = await runTransaction(db, async (t) => {
+      const snap = await t.get(ref);
+      const current = snap.exists() ? snap.data().urut : 0;
+      const next = current + 1;
+      t.set(ref, { urut: next });
+      return next;
+    });
+    return urut;
+  };
+
+  // Simpan data surat ke Firestore (untuk rekap sekolah)
+  window.simpanSuratKeFirestore = async function (data) {
+    await addDoc(collection(db, "surat_izin"), {
+      ...data,
+      dibuatPada: serverTimestamp()
+    });
+  };
+
+  window.__firebaseSiap = true;
+</script>
+
 <script>
 const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
@@ -460,11 +504,11 @@ function formatSingkat(iso){
   if(isNaN(d)) return "-";
   return String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+d.getFullYear();
 }
-function ambilNomorUrutHarian(){
+function ambilNomorUrutLokal(){
+  // Fallback: dipakai kalau Firebase gagal/tidak tersedia (mis. offline)
   const today = new Date();
   const todayKey = today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
   const STORAGE_KEY = "suratIzinCounter";
-
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     const data = raw ? JSON.parse(raw) : null;
@@ -477,17 +521,40 @@ function ambilNomorUrutHarian(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ tanggal: todayKey, urut }));
     return urut;
   }catch(err){
-    // localStorage tidak tersedia (mis. pratinjau di dalam sandbox) -> pakai nomor urut sesi ini saja
     if(!window.__suratUrutSesi) window.__suratUrutSesi = 1;
     return window.__suratUrutSesi;
   }
 }
 
-const NOMOR_URUT_HARI_INI = ambilNomorUrutHarian();
+let NOMOR_URUT_HARI_INI = null; // null = masih memuat dari Firestore
+
+async function muatNomorUrutTerpusat(){
+  try{
+    // beri waktu singkat agar modul firebase (type=module) sempat siap
+    let tunggu = 0;
+    while(!window.ambilNomorUrutTerpusat && tunggu < 3000){
+      await new Promise(r => setTimeout(r, 100));
+      tunggu += 100;
+    }
+    if(window.ambilNomorUrutTerpusat){
+      NOMOR_URUT_HARI_INI = await window.ambilNomorUrutTerpusat();
+    } else {
+      NOMOR_URUT_HARI_INI = ambilNomorUrutLokal();
+    }
+  }catch(err){
+    console.error("Gagal ambil nomor dari Firestore, pakai nomor lokal:", err);
+    NOMOR_URUT_HARI_INI = ambilNomorUrutLokal();
+  }
+  render();
+}
+muatNomorUrutTerpusat();
 
 function nomorSurat(iso){
   const d = iso ? new Date(iso+"T00:00:00") : new Date();
   const rom = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"];
+  if(NOMOR_URUT_HARI_INI === null){
+    return "memuat...";
+  }
   const seq = String(NOMOR_URUT_HARI_INI).padStart(3,"0");
   return seq+"/IZIN-SISWA/"+rom[d.getMonth()]+"/"+d.getFullYear();
 }
@@ -736,6 +803,25 @@ async function kirimWhatsapp(){
 
   btn.disabled = false;
   btn.innerHTML = teksAsli;
+
+  // Simpan data surat ke Firestore untuk rekap sekolah (best-effort, tidak menghentikan proses kirim jika gagal)
+  if(window.simpanSuratKeFirestore){
+    window.simpanSuratKeFirestore({
+      noSurat: nomorSurat(state.tglSurat),
+      namaSiswa: state.namaSiswa,
+      kelas: state.kelas,
+      nis: state.nis,
+      tujuan: state.tujuan,
+      jenis: state.jenis,
+      tglMulai: state.tglMulai,
+      tglSelesai: state.tglSelesai,
+      keterangan: state.keterangan,
+      namaWali: state.namaWali,
+      tempatSurat: state.tempatSurat,
+      tglSurat: state.tglSurat,
+      adaFoto: !!state.foto
+    }).catch(err => console.error("Gagal menyimpan data surat ke Firestore:", err));
+  }
 
   if(pdfFile && navigator.canShare && navigator.canShare({ files:[pdfFile] })){
     try{
