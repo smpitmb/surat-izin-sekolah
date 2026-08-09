@@ -689,16 +689,16 @@ function ringkasanTeks(){
   const rentang = (state.tglMulai || state.tglSelesai)
     ? formatSingkat(state.tglMulai) + ((state.tglSelesai && state.tglSelesai !== state.tglMulai) ? " s/d "+formatSingkat(state.tglSelesai) : "")
     : "-";
-  let t = "*Surat Izin Tidak Masuk Sekolah*\\n";
-  t += "No: "+nomorSurat(state.tglSurat)+"\\n\\n";
-  t += "Nama: "+(state.namaSiswa||"-")+"\\n";
-  t += "Kelas: "+(state.kelas||"-")+"\\n";
-  if(state.nis) t += "NIS/NISN: "+state.nis+"\\n";
-  t += "Tanggal izin: "+rentang+"\\n";
-  t += "Jenis: "+(state.jenis==="sakit"?"Sakit":state.jenis==="izin"?"Izin Keperluan":"Lainnya")+"\\n";
-  if(state.keterangan) t += "Keterangan: "+state.keterangan+"\\n";
-  t += "Orang tua/wali: "+(state.namaWali||"-")+"\\n";
-  t += (state.foto ? "\\n(Foto lampiran bukti disertakan)" : "\\n(Tidak ada foto lampiran)");
+  let t = "*Surat Izin Tidak Masuk Sekolah*\n";
+  t += "No: "+nomorSurat(state.tglSurat)+"\n\n";
+  t += "Nama: "+(state.namaSiswa||"-")+"\n";
+  t += "Kelas: "+(state.kelas||"-")+"\n";
+  if(state.nis) t += "NIS/NISN: "+state.nis+"\n";
+  t += "Tanggal izin: "+rentang+"\n";
+  t += "Jenis: "+(state.jenis==="sakit"?"Sakit":state.jenis==="izin"?"Izin Keperluan":"Lainnya")+"\n";
+  if(state.keterangan) t += "Keterangan: "+state.keterangan+"\n";
+  t += "Orang tua/wali: "+(state.namaWali||"-")+"\n";
+  t += (state.foto ? "\n(Foto lampiran bukti disertakan)" : "\n(Tidak ada foto lampiran)");
   return t;
 }
 
